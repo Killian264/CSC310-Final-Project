@@ -5,21 +5,27 @@
 #include <string>
 #include <exception>
 #include <string.h>
+#include <sstream>
+#include <vector>
 
 /****************************** PUBLIC: constructor ******************************/
 binaryFile::binaryFile(string baseFilePath, string baseFileName, string binaryFilePath, string binaryFileName){
     // set stuff
-    this->baseFilePath = baseFilePath;
-    this->baseFileName = baseFileName;
+    this->baseFilePath = baseFilePath+baseFileName;
 
-    this->binaryFilePath = binaryFilePath;
-    this->binaryFileName = binaryFileName;
+    this->binaryFilePath = binaryFilePath+binaryFileName;
 
     // fill binary file based on information given
-    p_fillBinaryFile();
+
+	// read in employees
+    vector<employee> employees = this->p_loadEmployees();
+	// sort them
+	employees = this->p_sortEmployees(employees);
+	// write them to binary file
+	this->p_writeEmployees(employees);
 }
 
-binaryFile::~binaryFile(string baseFilePath, string baseFileName, string binaryFilePath, string binaryFileName){
+binaryFile::~binaryFile(){
     
 }
 
@@ -38,45 +44,81 @@ bool binaryFile::updateEmployeeName(int, int, string){
 }
 
 /****************************** PRIVATE: fillBinaryFile ******************************/
-void binaryFile::p_fillBinaryFile() {
+vector<employee> binaryFile::p_loadEmployees() {
+	char seperator = ',';
+
+	vector<employee> employees;
     // this is not complete 
+
+	// open input file
 	ifstream inputFile;
 	string inputString;
-	inputFile.open(this->baseFilePath + this->baseFileName, ios::in);
+	employee currentEmployee;
+	inputFile.open(this->baseFilePath, ios::in);
 
-
-	fstream outputFile;
-	employee* currentEmployee = new employee;
-	outputFile.open(this->binaryFilePath + this->binaryFileName, ios::binary | ios::out | ios::in);
-
+	// read first line
 	inputFile >> inputString;
 
-	while (inputString != "") {
-		currentEmployee->departmentNumber = (int)inputString[0];
-		currentEmployee->employeeNumber= (int)inputString[2];
 
-		string strName = inputString.substr(4);
-		// do str length check or something here
+	while (!inputFile.eof()) {
+		// vars
+		int departmentNumber;
+		int employeeNumber;
+		string name;
+
+		// read in data as int
+		std::istringstream(inputString.substr(0, inputString.find(seperator))) >> departmentNumber;
+		inputString = inputString.substr(inputString.find(seperator) + 1, inputString.length());
+
+		std::istringstream(inputString.substr(0, inputString.find(seperator))) >> employeeNumber;
+		inputString = inputString.substr(inputString.find(seperator) + 1, inputString.length());
+
+		// rest of the string
+		name = inputString;
+
+		// string length check on name should be done here
 
 
-		strcpy(currentEmployee->name, strName.c_str());
-		// char* & is some kind of hidden magic probably
-		outputFile.write((char*)&currentEmployee, sizeof(employee));
+		// clear current employee name char[30]
+		memset(currentEmployee.name, 0, sizeof(currentEmployee.name));
+		// copy over data to currentEmployee
+		currentEmployee.departmentNumber = departmentNumber;
+		currentEmployee.employeeNumber = employeeNumber;
+
+		// should be replaced with strcpy_s <- I believe strcpy is unsafe
+		strcpy(currentEmployee.name, name.c_str());
+
+		// push to employees
+		employees.push_back(currentEmployee);
 
 		inputFile >> inputString;
 	}
 
 	inputFile.close();
 
-	// free allocated data
-	delete(currentEmployee);
+	return employees;
 }
 
-
-/****************************** PRIVATE: sortBinaryFilee ******************************/
-void binaryFile::p_sortBinaryFile(){
-    return;
+/****************************** PRIVATE: sortEmployees ******************************/
+vector<employee> binaryFile::p_sortEmployees(vector<employee> employees){
+	return employees;
 }
+
+vector<employee> binaryFile::p_writeEmployees(vector<employee> employees){
+	// open output file
+	fstream outputFile;
+	// trunc kills the file before write
+	outputFile.open(this->binaryFilePath, ios::binary | ios::out | ios::in | ios::trunc);
+
+	for(employee iterEmployee : employees){
+		outputFile.write((char*)&iterEmployee.departmentNumber, sizeof(int));
+		outputFile.write((char*)&iterEmployee.employeeNumber, sizeof(int));
+		outputFile.write(iterEmployee.name, sizeof(char)*30);
+	}
+
+	outputFile.close();
+}
+
 
 // params: int departmentNumber, int employeeNumber
 // return: found

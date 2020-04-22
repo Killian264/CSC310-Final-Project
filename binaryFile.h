@@ -3,15 +3,16 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
 
 typedef struct EMPLOYEE {
-	char name[30];
 	int departmentNumber;
 	int employeeNumber;
-}employee;
+	char name[30];
+}__attribute__((packed))employee;
 
 
 class binaryFile {
@@ -34,15 +35,16 @@ private:
 	// This can be change later but in the current setup the paths of the files will be stored here
 	// When a function is called that needs to access the binary file the function will open the file and do stuff then close it
 	string baseFilePath;
-	string baseFileName;
 	string binaryFilePath;
-	string binaryFileName;
 
-	// this will fill the binary file at binaryFilePath + binaryFileName
-	void p_fillBinaryFile();
+	// this will load in employees to a vector
+	vector<employee> p_loadEmployees();
 
-	// this will sort the binary file at binaryFilePath + binaryFileName
-	void p_sortBinaryFile();
+	// this will sort the vector of employees given to it
+	vector<employee> p_sortEmployees(vector<employee>);
+
+	// this will write to the binary file at binaryFilePath + binaryFileName
+	vector<employee> p_writeEmployees(vector<employee>);
 
 	// params: int departmentNumber, int employeeNumber
 	// return: found
