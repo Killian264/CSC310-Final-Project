@@ -1,6 +1,6 @@
 INCLUDE_DIRS := ./
 CC := g++
-CFLAGS := -I$(INCLUDE_DIRS)
+CFLAGS := -g -I$(INCLUDE_DIRS)
 
 excBinaryFile: main.o binaryFile.o customErrorClass.o
 	$(CC) -o excBinaryFile main.o binaryFile.o customErrorClass.o  $(CFLAGS)

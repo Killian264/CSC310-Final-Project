@@ -40,6 +40,9 @@ private:
 	// this will load in employees to a vector
 	vector<employee> p_loadEmployees();
 
+	//this will help sort employees by more than one field
+	static bool p_sortHelper(const employee&, const employee&);
+
 	// this will sort the vector of employees given to it
 	vector<employee> p_sortEmployees(vector<employee>);
 
