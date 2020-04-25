@@ -7,6 +7,7 @@
 #include <string.h>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 
 /****************************** PUBLIC: constructor ******************************/
 binaryFile::binaryFile(string baseFilePath, string baseFileName, string binaryFilePath, string binaryFileName){
@@ -99,11 +100,24 @@ vector<employee> binaryFile::p_loadEmployees() {
 	return employees;
 }
 
-/****************************** PRIVATE: sortEmployees ******************************/
+/****************************** PRIVATE: p_sortEmployees ******************************/
 vector<employee> binaryFile::p_sortEmployees(vector<employee> employees){
+	std::sort( employees.begin(), employees.end(), p_sortHelper);
+	
+	// for(employee iterEmployee : employees){
+	// 	cout<<iterEmployee.departmentNumber<<"\t"<<iterEmployee.employeeNumber<<"\t"<<iterEmployee.name<<endl;
+	// }
 	return employees;
 }
 
+/****************************** PRIVATE: p_sortHelper ******************************/
+//sortHelper allows us to sort by 2 fields (ie Department and then Employee Number)
+bool binaryFile::p_sortHelper(const employee &e1, const employee &e2){
+	return 	e1.departmentNumber < e2.departmentNumber || 
+			e1.departmentNumber == e2.departmentNumber && e1.employeeNumber < e2.employeeNumber;
+}
+
+/****************************** PRIVATE: p_writeEmployees ******************************/
 vector<employee> binaryFile::p_writeEmployees(vector<employee> employees){
 	// open output file
 	fstream outputFile;
