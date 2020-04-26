@@ -51,7 +51,7 @@ private:
 
 	// params: int departmentNumber, int employeeNumber
 	// return: found
-	bool p_findEmployee(int, int);
+	int p_findEmployee(int, int);
 
 	// params: int departmentNumber, int employeeNumber
 	// return: updated

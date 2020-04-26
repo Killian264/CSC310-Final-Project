@@ -24,6 +24,7 @@ binaryFile::binaryFile(string baseFilePath, string baseFileName, string binaryFi
 	employees = this->p_sortEmployees(employees);
 	// write them to binary file
 	this->p_writeEmployees(employees);
+	
 }
 
 binaryFile::~binaryFile(){
@@ -33,8 +34,12 @@ binaryFile::~binaryFile(){
 // params: int departmentNumber, int employeeNumber
 // return: found
 /****************************** PUBLIC: findEmployee ******************************/
-bool binaryFile::findEmployee(int, int){
-    return true;
+bool binaryFile::findEmployee(int departmentNumber, int employeeNumber){
+    int searchResult = this->p_findEmployee(departmentNumber,employeeNumber);
+	if( searchResult > 0 ){
+		return true;
+	} 
+	return false;
 }
 
 // params: int departmentNumber, int employeeNumber
@@ -104,9 +109,14 @@ vector<employee> binaryFile::p_loadEmployees() {
 vector<employee> binaryFile::p_sortEmployees(vector<employee> employees){
 	std::sort( employees.begin(), employees.end(), p_sortHelper);
 	
-	// for(employee iterEmployee : employees){
-	// 	cout<<iterEmployee.departmentNumber<<"\t"<<iterEmployee.employeeNumber<<"\t"<<iterEmployee.name<<endl;
+	// fstream outFile ("sortTest.txt", ios::out);
+	
+	// 	for(employee iterEmployee : employees){
+	// 	outFile.write((char*)&iterEmployee.departmentNumber, sizeof(int));
+	// 	outFile.write((char*)&iterEmployee.employeeNumber, sizeof(int));
+	// 	outFile.write(iterEmployee.name, sizeof(char)*30);
 	// }
+
 	return employees;
 }
 
@@ -137,8 +147,30 @@ vector<employee> binaryFile::p_writeEmployees(vector<employee> employees){
 // params: int departmentNumber, int employeeNumber
 // return: found
 /****************************** PRIVATE: findEmployee ******************************/
-bool binaryFile::p_findEmployee(int, int){
-    return true;
+int binaryFile::p_findEmployee(int deptartmentNumber, int employeeNumber){
+	fstream searchFile;
+	searchFile.open(this->binaryFilePath, ios::in | ios::binary);
+	int temp;
+	//start 1 byte into file. This should be the location of the employee #
+	searchFile.seekg(sizeof(int), ios::beg);
+	int i = 0;
+	// for(i = 0; i < 200; i++){
+		
+	// 	searchFile.read((char*)&temp, sizeof(int));
+	// 	searchFile.seekg(i, ios::beg);
+	// 	cout<<"i: "<<i<<" | temp: "<<temp<<endl;
+	// }
+
+	while(searchFile && temp != employeeNumber){
+		searchFile.read((char*)&temp, sizeof(int));
+		if(temp == employeeNumber){
+			return searchFile.tellg();
+		}
+		searchFile.seekg(sizeof(employee) - sizeof(int), ios::cur);
+		i++;
+	}
+
+    return -1;
 }
 
 // params: int departmentNumber, int employeeNumber
