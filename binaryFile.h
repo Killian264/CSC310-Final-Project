@@ -36,6 +36,8 @@ private:
 	// When a function is called that needs to access the binary file the function will open the file and do stuff then close it
 	string baseFilePath;
 	string binaryFilePath;
+	//binary index to search only department specified in search
+	int departmentLoc[5];
 
 	// this will load in employees to a vector
 	vector<employee> p_loadEmployees();
