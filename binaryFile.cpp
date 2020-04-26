@@ -109,19 +109,13 @@ vector<employee> binaryFile::p_loadEmployees() {
 vector<employee> binaryFile::p_sortEmployees(vector<employee> employees){
 	std::sort( employees.begin(), employees.end(), p_sortHelper);
 	
-	// fstream outFile ("sortTest.txt", ios::out);
-	
-	// 	for(employee iterEmployee : employees){
-	// 	outFile.write((char*)&iterEmployee.departmentNumber, sizeof(int));
-	// 	outFile.write((char*)&iterEmployee.employeeNumber, sizeof(int));
-	// 	outFile.write(iterEmployee.name, sizeof(char)*30);
-	// }
-
 	return employees;
 }
 
 /****************************** PRIVATE: p_sortHelper ******************************/
 //sortHelper allows us to sort by 2 fields (ie Department and then Employee Number)
+//params: employee e1, employee e2
+//return: e1 > e2 ? true : false
 bool binaryFile::p_sortHelper(const employee &e1, const employee &e2){
 	return 	e1.departmentNumber < e2.departmentNumber || 
 			e1.departmentNumber == e2.departmentNumber && e1.employeeNumber < e2.employeeNumber;
@@ -133,14 +127,20 @@ vector<employee> binaryFile::p_writeEmployees(vector<employee> employees){
 	fstream outputFile;
 	// trunc kills the file before write
 	outputFile.open(this->binaryFilePath, ios::binary | ios::out | ios::in | ios::trunc);
+	int indexLocation = 0, checkSize = 0;
 
 	for(employee iterEmployee : employees){
+		//generate the binary index based upon department
+		if( checkSize <= iterEmployee.departmentNumber ){
+			departmentLoc[indexLocation] = outputFile.tellp();
+			indexLocation++;
+			checkSize++;			
+		}
 		outputFile.write((char*)&iterEmployee.departmentNumber, sizeof(int));
 		outputFile.write((char*)&iterEmployee.employeeNumber, sizeof(int));
 		outputFile.write(iterEmployee.name, sizeof(char)*30);
+		
 	}
-
-	outputFile.close();
 }
 
 
@@ -151,23 +151,26 @@ int binaryFile::p_findEmployee(int deptartmentNumber, int employeeNumber){
 	fstream searchFile;
 	searchFile.open(this->binaryFilePath, ios::in | ios::binary);
 	int temp;
-	//start 1 byte into file. This should be the location of the employee #
-	searchFile.seekg(sizeof(int), ios::beg);
-	int i = 0;
-	// for(i = 0; i < 200; i++){
-		
-	// 	searchFile.read((char*)&temp, sizeof(int));
-	// 	searchFile.seekg(i, ios::beg);
-	// 	cout<<"i: "<<i<<" | temp: "<<temp<<endl;
-	// }
+	//start at location of specified department in file and end before start of next dept. 
+	int startLoc = departmentLoc[deptartmentNumber];
+	int endLoc;
+	searchFile.seekg(0, ios::end);
+	int length = searchFile.tellg();
+	deptartmentNumber < 4 ? endLoc = departmentLoc[deptartmentNumber + 1] : endLoc = length;
+	
+	//determine size of segment to search
+	int searchSegmentSize = endLoc - startLoc;
+	//set stream position back to beginning of inputted department data
+	searchFile.seekg(startLoc, ios::beg);
 
-	while(searchFile && temp != employeeNumber){
+	while(searchSegmentSize > 0){
+		searchFile.seekg(sizeof(int), ios::cur);
 		searchFile.read((char*)&temp, sizeof(int));
 		if(temp == employeeNumber){
 			return searchFile.tellg();
 		}
-		searchFile.seekg(sizeof(employee) - sizeof(int), ios::cur);
-		i++;
+		searchFile.seekg(sizeof(employee) - sizeof(int) * 2, ios::cur);
+		searchSegmentSize -= sizeof(employee);
 	}
 
     return -1;
