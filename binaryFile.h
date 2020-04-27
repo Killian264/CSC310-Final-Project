@@ -28,7 +28,11 @@ public:
 
 	// params: int departmentNumber, int employeeNumber
 	// return: updated
-	bool updateEmployeeName(int, int, string);    
+	bool updateEmployeeName(int, int, string);
+
+	// params: int departmentNumber, int employeeNumber
+    // return: employee information
+    string retrieveEmployee(int, int);
 
 private:
 	// This can be change later but in the current setup the paths of the files will be stored here
@@ -58,7 +62,9 @@ private:
 	// return: updated
 	bool p_updateEmployeeName(int, int, string);
 
-
+    // params: int departmentNumber, int employeeNumber
+    // return: employee information
+    string p_retrieveEmployee(int, int);
 
 };
 

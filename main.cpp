@@ -15,6 +15,7 @@ int main(int argc, char* argv[]) {
 
 	if(smallBinaryFile->findEmployee(0,45731)){
 		cout<<"Employee found."<<endl;
+		cout << smallBinaryFile -> retrieveEmployee(0,45731) << endl;
 	} else{
 		cout<<"Employee NOT found."<<endl;
 	}
@@ -47,6 +48,7 @@ int main(int argc, char* argv[]) {
 		cout<<"Employee found."<<endl;
 	} else{
 		cout<<"Employee NOT found."<<endl;
+		cout << smallBinaryFile -> retrieveEmployee(0,18738) << endl;
 	}
 
 	if(smallBinaryFile->findEmployee(1,63006)){

@@ -50,6 +50,22 @@ bool binaryFile::updateEmployeeName(int, int, string){
     return true;
 }
 
+/****************************** PUBLIC: retrieveEmployee ******************************/
+string binaryFile::retrieveEmployee(int departmentNumber, int employeeNumber)
+{
+    string employeeInfo = this -> p_retrieveEmployee(departmentNumber, employeeNumber);
+
+    if(employeeInfo == "-1")
+    {
+        // Will add in error handling; this is a placeholder probably
+        return "-1";
+    }
+    else
+    {
+        return employeeInfo;
+    }
+}
+
 /****************************** PRIVATE: fillBinaryFile ******************************/
 vector<employee> binaryFile::p_loadEmployees() {
 	char seperator = ',';
@@ -183,4 +199,48 @@ int binaryFile::p_findEmployee(int deptartmentNumber, int employeeNumber){
 /****************************** PRIVATE: updateEmployeeName ******************************/
 bool binaryFile::p_updateEmployeeName(int, int, string){
     return true;
+}
+
+// params: int departmentNumber, int employeeNumber
+// return: employee information
+/****************************** PRIVATE: p_retrieveEmployee ******************************/
+string binaryFile::p_retrieveEmployee(int departmentNumber, int employeeNumber)
+{
+    fstream file;
+    string employeeInfoStr = "";
+    string employeeNameStr = "";
+    int size = 30;
+    char * employeeNameArr = new char[size];
+    employee currentEmployee;
+
+    int offset = this -> p_findEmployee(departmentNumber, employeeNumber);
+
+    // Employee doesn't exist
+    if(offset == -1)
+    {
+        return "-1";
+    }
+    // Employee exists
+    else
+    {
+        file.open(this -> binaryFilePath, ios::in | ios::binary);   // Open file
+
+        file.seekg(0, ios::beg);                     // Start at beginning of file
+        file.seekg(offset, ios::beg);                // Move to beginning of entry
+
+        file.read((char*)&currentEmployee, sizeof(employee));   // Read employee into currentEmployee
+        file.close();                                           // Close file
+    }
+
+    employeeNameStr = currentEmployee.name;           // Assign currentEmployee's name to employeeNameStr
+
+    employeeInfoStr += to_string(departmentNumber);   // Append departmentNumber to employeeInfoStr
+    employeeInfoStr += ", ";
+    employeeInfoStr += to_string(employeeNumber);     // Append employeeNumber to employeeInfoStr
+    employeeInfoStr += ", ";
+
+    employeeInfoStr += employeeNameStr;   // Append employeeNameStr to employeeInfoStr - along with null byte
+
+    // Return employeeInfoStr
+    return employeeInfoStr;
 }
