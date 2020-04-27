@@ -75,6 +75,21 @@ int main(int argc, char* argv[]) {
 		cout<<"Employee NOT found."<<endl;
 	}
 
+	if(smallBinaryFile->findEmployee(0,45731)){
+		cout<<"Employee found."<<endl;
+		cout << smallBinaryFile -> retrieveEmployee(0,45731) << endl;
+	} else{
+		cout<<"Employee NOT found."<<endl;
+	}
+	smallBinaryFile->updateEmployeeName(0,45731, "dope new name");
+	if(smallBinaryFile->findEmployee(0,45731)){
+		cout<<"Employee found."<<endl;
+		cout << smallBinaryFile -> retrieveEmployee(0,45731) << endl;
+	} else{
+		cout<<"Employee NOT found."<<endl;
+	}
+
+
 	// smallBinaryFile->retrieveEmployee(2,58509);
 
 	// binaryFile* largeBinaryFile = new binaryFile(baseFilePath, "largeOutput.txt", binaryFilePath, "largeOutput.txt");

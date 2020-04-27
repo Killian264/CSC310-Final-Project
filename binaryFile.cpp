@@ -8,6 +8,7 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <cstring>
 
 /****************************** PUBLIC: constructor ******************************/
 binaryFile::binaryFile(string baseFilePath, string baseFileName, string binaryFilePath, string binaryFileName){
@@ -36,18 +37,22 @@ binaryFile::~binaryFile(){
 /****************************** PUBLIC: findEmployee ******************************/
 bool binaryFile::findEmployee(int departmentNumber, int employeeNumber){
     int searchResult = this->p_findEmployee(departmentNumber,employeeNumber);
-	if( searchResult > 0 ){
-		cout<<"offset: "<<searchResult<<endl;
-		return true;
-	} 
+	return searchResult > 0 ? true : false;
+	// if( searchResult > 0 ){
+	// 	//cout<<"offset: "<<searchResult<<endl;
+	// 	return true;
+	// } 
 	return false;
 }
 
 // params: int departmentNumber, int employeeNumber
 // return: updated
 /****************************** PUBLIC: updateEmployeeName ******************************/
-bool binaryFile::updateEmployeeName(int, int, string){
-    return true;
+bool binaryFile::updateEmployeeName(int departmentNumber, int employeeNumber, string newName){
+	if(newName.length() > sizeof(employee::name)){
+		// do error stuff
+	}
+    return this->p_updateEmployeeName(departmentNumber,employeeNumber, newName);
 }
 
 /****************************** PUBLIC: retrieveEmployee ******************************/
@@ -153,27 +158,32 @@ vector<employee> binaryFile::p_writeEmployees(vector<employee> employees){
 			indexLocation++;
 			checkSize++;			
 		}
-		outputFile.write((char*)&iterEmployee.departmentNumber, sizeof(int));
-		outputFile.write((char*)&iterEmployee.employeeNumber, sizeof(int));
-		outputFile.write(iterEmployee.name, sizeof(char)*30);
+		// outputFile.write((char*)&iterEmployee.departmentNumber, sizeof(int));
+		// outputFile.write((char*)&iterEmployee.employeeNumber, sizeof(int));
+		// outputFile.write(iterEmployee.name, sizeof(char)*30);
+
+		outputFile.write((char*)&iterEmployee, sizeof(employee));
 		
 	}
+	outputFile.close();
 }
 
 
 // params: int departmentNumber, int employeeNumber
 // return: found
 /****************************** PRIVATE: findEmployee ******************************/
-int binaryFile::p_findEmployee(int deptartmentNumber, int employeeNumber){
+int binaryFile::p_findEmployee(int departmentNumber, int employeeNumber){
 	fstream searchFile;
 	searchFile.open(this->binaryFilePath, ios::in | ios::binary);
 	int temp;
 	//start at location of specified department in file and end before start of next dept. 
-	int startLoc = departmentLoc[deptartmentNumber];
+	int startLoc = departmentLoc[departmentNumber];
 	int endLoc;
 	searchFile.seekg(0, ios::end);
 	int length = searchFile.tellg();
-	deptartmentNumber < 4 ? endLoc = departmentLoc[deptartmentNumber + 1] : endLoc = length;
+
+	// this should be replaced with a departmentNumber < this.numberOfDepartments or something like that
+	departmentNumber < 4 ? endLoc = departmentLoc[departmentNumber + 1] : endLoc = length;
 	
 	//determine size of segment to search
 	int searchSegmentSize = endLoc - startLoc;
@@ -197,8 +207,35 @@ int binaryFile::p_findEmployee(int deptartmentNumber, int employeeNumber){
 // params: int departmentNumber, int employeeNumber
 // return: updated
 /****************************** PRIVATE: updateEmployeeName ******************************/
-bool binaryFile::p_updateEmployeeName(int, int, string){
-    return true;
+bool binaryFile::p_updateEmployeeName(int departmentNumber, int employeeNumber, string newName){
+    fstream file;
+	employee currentEmployee;
+
+	int offset = this -> p_findEmployee(departmentNumber, employeeNumber);
+
+    // Employee doesn't exist
+    if(offset == -1)
+    {
+        return false;
+    }
+    // Employee exists
+    else
+    {
+        file.open(this -> binaryFilePath, ios::out | ios::binary);   // Open file
+        file.seekg(offset);                // Move to beginning of entry
+
+		memset(currentEmployee.name, 0, sizeof(currentEmployee.name));
+		// In this instace changing to strcpy_s is probably unnecessary but should be done anyways
+		strcpy(currentEmployee.name, newName.c_str());
+		currentEmployee.departmentNumber = departmentNumber;
+		currentEmployee.employeeNumber = employeeNumber;
+
+		file.write((char*)&currentEmployee, sizeof(employee));
+    }
+
+	file.close();  
+
+	return true;
 }
 
 // params: int departmentNumber, int employeeNumber
@@ -225,8 +262,9 @@ string binaryFile::p_retrieveEmployee(int departmentNumber, int employeeNumber)
     {
         file.open(this -> binaryFilePath, ios::in | ios::binary);   // Open file
 
-        file.seekg(0, ios::beg);                     // Start at beginning of file
-        file.seekg(offset, ios::beg);                // Move to beginning of entry
+        // file.seekg(0, ios::beg);                     // Start at beginning of file
+        // file.seekg(offset, ios::beg);                // Move to beginning of entry
+		file.seekg(offset);
 
         file.read((char*)&currentEmployee, sizeof(employee));   // Read employee into currentEmployee
         file.close();                                           // Close file
