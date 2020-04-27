@@ -37,6 +37,7 @@ binaryFile::~binaryFile(){
 bool binaryFile::findEmployee(int departmentNumber, int employeeNumber){
     int searchResult = this->p_findEmployee(departmentNumber,employeeNumber);
 	if( searchResult > 0 ){
+		cout<<"offset: "<<searchResult<<endl;
 		return true;
 	} 
 	return false;
@@ -167,6 +168,7 @@ int binaryFile::p_findEmployee(int deptartmentNumber, int employeeNumber){
 		searchFile.seekg(sizeof(int), ios::cur);
 		searchFile.read((char*)&temp, sizeof(int));
 		if(temp == employeeNumber){
+			searchFile.seekg(-(sizeof(int) * 2), ios::cur);
 			return searchFile.tellg();
 		}
 		searchFile.seekg(sizeof(employee) - sizeof(int) * 2, ios::cur);

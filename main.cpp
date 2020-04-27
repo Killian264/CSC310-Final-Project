@@ -73,6 +73,8 @@ int main(int argc, char* argv[]) {
 		cout<<"Employee NOT found."<<endl;
 	}
 
+	// smallBinaryFile->retrieveEmployee(2,58509);
+
 	// binaryFile* largeBinaryFile = new binaryFile(baseFilePath, "largeOutput.txt", binaryFilePath, "largeOutput.txt");
 	// if(largeBinaryFile->findEmployee(0,499995)){
 	// 	cout<<"Employee found."<<endl;
