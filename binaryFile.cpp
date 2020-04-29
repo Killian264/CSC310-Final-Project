@@ -277,46 +277,47 @@ int binaryFile::p_findEmployee(int departmentNumber, int employeeNumber){
 bool binaryFile::p_updateEmployeeName(int departmentNumber, int employeeNumber, string newName){
     fstream file;
 	employee currentEmployee;
-	int offset;
 
-    try
-    {
-    	offset = this -> p_findEmployee(departmentNumber, employeeNumber);
-    }
-    catch(myException &e)
-    {
-        cout << e.what() << endl;
-    }
+    vector<employee> employees;
 
-    // Employee doesn't exist
-    if(offset == -1)
+    file.open(this -> binaryFilePath, ios::in | ios::out | ios::binary);   // Open file
+
+    bool found = false;
+
+    if(file.is_open())
     {
-        return false;
+        while(!file.eof()){
+            file.seekg(sizeof(employee), ios::cur);
+            memset(currentEmployee.name, 0, sizeof(currentEmployee.name));
+            file.read((char*)&currentEmployee, sizeof(employee));
+            if(currentEmployee.departmentNumber == departmentNumber && currentEmployee.employeeNumber){
+                memset(currentEmployee.name, 0, sizeof(currentEmployee.name));
+                // change to strcpy_s
+                strcpy(currentEmployee.name, newName.c_str());
+                found = true;
+            }
+            employees.push_back(currentEmployee);
+        }
     }
-    // Employee exists
     else
     {
-        file.open(this -> binaryFilePath, ios::out | ios::binary);   // Open file
+        throw myException("File could not be opened.", ERROR);
+    }
+    // if not found return
+    file.close(); 
+    if(!found) return found;
 
-        if(file.is_open())
-        {
-            file.seekg(offset);                // Move to beginning of entry
 
-            memset(currentEmployee.name, 0, sizeof(currentEmployee.name));
-            // In this instace changing to strcpy_s is probably unnecessary but should be done anyways
-            strcpy(currentEmployee.name, newName.c_str());
-            currentEmployee.departmentNumber = departmentNumber;
-            currentEmployee.employeeNumber = employeeNumber;
-
-            file.write((char*)&currentEmployee, sizeof(employee));
-        }
-        else
-        {
-            throw myException("File could not be opened.", ERROR);
+    file.open(this->binaryFilePath, ios::binary | ios::out | ios::in | ios::trunc);
+    if(file.is_open()){
+        for(employee iterEmployee : employees){
+            file.write((char*)&iterEmployee, sizeof(employee));
         }
     }
-
-	file.close();  
+    else
+    {
+        throw myException("File could not be opened.", ERROR);
+    }
 
 	return true;
 }
