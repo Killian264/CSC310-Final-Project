@@ -206,8 +206,8 @@ vector<employee> binaryFile::p_writeEmployees(vector<employee> employees){
     	for(employee iterEmployee : employees){
     		//generate the binary index based upon department
     		if( checkSize <= iterEmployee.departmentNumber ){
-    			departmentLoc[indexLocation] = outputFile.tellp();
-    			indexLocation++;
+    			departmentLocations.push_back(outputFile.tellp());
+    			// indexLocation++;
     			checkSize++;
     		}
     		// outputFile.write((char*)&iterEmployee.departmentNumber, sizeof(int));
@@ -230,40 +230,38 @@ vector<employee> binaryFile::p_writeEmployees(vector<employee> employees){
 // return: found
 /****************************** PRIVATE: findEmployee ******************************/
 int binaryFile::p_findEmployee(int departmentNumber, int employeeNumber){
-	fstream searchFile;
-	searchFile.open(this->binaryFilePath, ios::in | ios::binary);
+	fstream file;
+	file.open(this->binaryFilePath, ios::in | ios::binary);
 
-	if(searchFile.is_open())
+	if(file.is_open())
 	{
-		int temp;
+		int currentEmployeeNumber;
     	//start at location of specified department in file and end before start of next dept.
-    	int startLoc = departmentLoc[departmentNumber];
-    	int endLoc;
-    	searchFile.seekg(0, ios::end);
-    	int length = searchFile.tellg();
-
-    	// this should be replaced with a departmentNumber < this.numberOfDepartments or something like that
-    	departmentNumber < 4 ? endLoc = departmentLoc[departmentNumber + 1] : endLoc = length;
+    	int startLocation = departmentLocations[departmentNumber];
+    	int endLocation;
+    	file.seekg(0, ios::end);
+    	int endOfFile = file.tellg();
+    	departmentNumber < departmentLocations.size() - 1 ? endLocation = departmentLocations[departmentNumber + 1] : endLocation = endOfFile;
 
     	//determine size of segment to search
-    	int searchSegmentSize = endLoc - startLoc;
+    	int searchSegmentSize = endLocation - startLocation;
     	//set stream position back to beginning of inputted department data
-    	searchFile.seekg(startLoc, ios::beg);
+    	file.seekg(startLocation, ios::beg);
 
     	while(searchSegmentSize > 0){
-    		searchFile.seekg(sizeof(int), ios::cur);
-    		searchFile.read((char*)&temp, sizeof(int));
-    		if(temp == employeeNumber){
-    			searchFile.seekg(-(sizeof(int) * 2), ios::cur);
-    			int tellg = searchFile.tellg();
-    			searchFile.close();
-    			return tellg;
+    		file.seekg(sizeof(int), ios::cur);
+    		file.read((char*)&currentEmployeeNumber, sizeof(int));
+    		if(currentEmployeeNumber == employeeNumber){
+    			file.seekg(-(sizeof(int) * 2), ios::cur);
+    			int employeeOffset = file.tellg();
+    			file.close();
+    			return employeeOffset;
     		}
-    		searchFile.seekg(sizeof(employee) - sizeof(int) * 2, ios::cur);
+    		file.seekg(sizeof(employee) - sizeof(int) * 2, ios::cur);
     		searchSegmentSize -= sizeof(employee);
     	}
 
-        searchFile.close();
+        file.close();
         return -1;
 	}
 	// File did not open

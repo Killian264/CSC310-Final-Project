@@ -12,7 +12,7 @@ const std::string binaryFilePath = "./Outputs/";
 
 int main(int argc, char* argv[]) {
 	binaryFile* smallBinaryFile = new binaryFile(baseFilePath, "smallOutput.txt", binaryFilePath, "smallOutput.txt");
-
+	// smallBinaryFile->updateEmployeeName(0,45731, "dope new name");
 	if(smallBinaryFile->findEmployee(0,45731)){
 		cout<<"Employee found."<<endl;
 		cout << smallBinaryFile -> retrieveEmployee(0,45731) << endl;
@@ -88,7 +88,12 @@ int main(int argc, char* argv[]) {
 	} else{
 		cout<<"Employee NOT found."<<endl;
 	}
-
+	if(smallBinaryFile->findEmployee(4,74996)){
+		cout<<"Employee found."<<endl;
+		cout<< smallBinaryFile->retrieveEmployee(4,74996);
+	} else{
+		cout<<"Employee NOT found."<<endl;
+	}
 
 	// smallBinaryFile->retrieveEmployee(2,58509);
 

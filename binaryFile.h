@@ -40,7 +40,8 @@ private:
 	string baseFilePath;
 	string binaryFilePath;
 	//binary index to search only department specified in search
-	int departmentLoc[5];
+	// int departmentLoc[5];
+	vector<int> departmentLocations;
 
 	// this will load in employees to a vector
 	vector<employee> p_loadEmployees();
