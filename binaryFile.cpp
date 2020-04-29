@@ -370,6 +370,13 @@ string binaryFile::p_retrieveEmployee(int departmentNumber, int employeeNumber)
         file.close();   // Close file
     }
 
+    // Department number doesn't match currentEmployee
+    if(currentEmployee.departmentNumber != departmentNumber)
+    {
+        throw myException("Employee number matches, but department number does not.", ERROR);
+        return "-1";
+    }
+
     employeeNameStr = currentEmployee.name;           // Assign currentEmployee's name to employeeNameStr
 
     employeeInfoStr += to_string(departmentNumber);   // Append departmentNumber to employeeInfoStr
