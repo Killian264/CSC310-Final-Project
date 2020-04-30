@@ -15,9 +15,9 @@ void largeOutputTest(binaryFile*);
 
 int main(int argc, char* argv[]) {
 	// //small output
-	// binaryFile* smallBinaryFile = new binaryFile(baseFilePath, "smallOutput.txt", binaryFilePath, "smallOutput.txt");
-	// smallOutputTest(smallBinaryFile);
-	// delete smallBinaryFile;
+	binaryFile* smallBinaryFile = new binaryFile(baseFilePath, "smallOutput.txt", binaryFilePath, "smallOutput.txt");
+	smallOutputTest(smallBinaryFile);
+	delete smallBinaryFile;
 
 	// // medium output
 	// binaryFile* mediumBinaryFile = new binaryFile(baseFilePath, "mediumOutput.txt", binaryFilePath, "mediumOutput.txt");
@@ -25,9 +25,9 @@ int main(int argc, char* argv[]) {
 	// delete mediumBinaryFile;
 
 	// // large output
-	binaryFile* largeBinaryFile = new binaryFile(baseFilePath, "largeOutput.txt", binaryFilePath, "largeOutput.txt");
-	largeOutputTest(largeBinaryFile);
-	delete largeBinaryFile;
+	// binaryFile* largeBinaryFile = new binaryFile(baseFilePath, "largeOutput.txt", binaryFilePath, "largeOutput.txt");
+	// largeOutputTest(largeBinaryFile);
+	// delete largeBinaryFile;
 	return 0;
 }
 

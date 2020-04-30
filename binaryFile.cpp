@@ -150,7 +150,7 @@ vector<employee>* binaryFile::p_loadEmployees() {
     		// clear current employee name char[30]
     		memset(currentEmployee.name, 0, sizeof(currentEmployee.name));
     		// copy over data to currentEmployee
-    		currentEmployee.departmentNumber = departmentNumber;
+    		currentEmployee.departmentNumber = (department)departmentNumber;
     		currentEmployee.employeeNumber = employeeNumber;
 
     		// should be replaced with strcpy_s <- I believe strcpy is unsafe
@@ -329,7 +329,7 @@ bool binaryFile::p_updateEmployeeName(int departmentNumber, int employeeNumber, 
 string binaryFile::p_retrieveEmployee(int departmentNumber, int employeeNumber)
 {
     fstream file;
-    string employeeInfoStr = "";
+    string employeeInfoStr = "Department: ";
     string employeeNameStr = "";
     int size = 30;
     char * employeeNameArr = new char[size];
@@ -377,16 +377,39 @@ string binaryFile::p_retrieveEmployee(int departmentNumber, int employeeNumber)
         throw myException("Employee number matches, but department number does not.", ERROR);
         return "-1";
     }
-
     employeeNameStr = currentEmployee.name;           // Assign currentEmployee's name to employeeNameStr
 
-    employeeInfoStr += to_string(departmentNumber);   // Append departmentNumber to employeeInfoStr
+    employeeInfoStr += p_DepartmentToString(currentEmployee.departmentNumber);   // Append departmentNumber to 
     employeeInfoStr += ", ";
-    employeeInfoStr += to_string(employeeNumber);     // Append employeeNumber to employeeInfoStr
+    employeeInfoStr += "Employee ID: " + to_string(employeeNumber);     // Append employeeNumber to employeeInfoStr
     employeeInfoStr += ", ";
 
-    employeeInfoStr += employeeNameStr;   // Append employeeNameStr to employeeInfoStr - along with null byte
+    employeeInfoStr += "Name: " + employeeNameStr;   // Append employeeNameStr to employeeInfoStr - along with null byte
 
     // Return employeeInfoStr
     return employeeInfoStr;
+}
+
+string binaryFile::p_DepartmentToString(department dept){
+    switch (dept)
+    {
+    case 0:
+        return "Accounting";
+        break;
+    case 1:
+        return "Business";
+        break;
+    case 2:
+        return "Human Resources";
+        break;
+    case 3:
+        return "Sales";
+        break;
+    case 4:
+        return "Production";
+        break;
+    default:
+        break;
+    }
+    
 }

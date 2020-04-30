@@ -7,13 +7,19 @@
 
 using namespace std;
 
+enum department {
+	Accounting,
+	Business,
+	Human_Resources,
+	Sales,
+	Production	
+};
 
 typedef struct EMPLOYEE {
-	int departmentNumber;
+	department departmentNumber;
 	int employeeNumber;
 	char name[30];
 }__attribute__((packed))employee;
-
 
 class binaryFile {
 public:
@@ -66,6 +72,8 @@ private:
     // params: int departmentNumber, int employeeNumber
     // return: employee information
     string p_retrieveEmployee(int, int);
+
+	string p_DepartmentToString(department);
 
 };
 
