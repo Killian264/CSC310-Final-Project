@@ -44,16 +44,16 @@ private:
 	vector<int> departmentLocations;
 
 	// this will load in employees to a vector
-	vector<employee> p_loadEmployees();
+	vector<employee>* p_loadEmployees();
 
 	//this will help sort employees by more than one field
 	static bool p_sortHelper(const employee&, const employee&);
 
 	// this will sort the vector of employees given to it
-	vector<employee> p_sortEmployees(vector<employee>);
+	vector<employee>* p_sortEmployees(vector<employee>*);
 
 	// this will write to the binary file at binaryFilePath + binaryFileName
-	vector<employee> p_writeEmployees(vector<employee>);
+	vector<employee>* p_writeEmployees(vector<employee>*);
 
 	// params: int departmentNumber, int employeeNumber
 	// return: found

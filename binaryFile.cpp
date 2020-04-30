@@ -17,7 +17,7 @@ binaryFile::binaryFile(string baseFilePath, string baseFileName, string binaryFi
 
     this->binaryFilePath = binaryFilePath+binaryFileName;
 
-    vector<employee> employees;
+    vector<employee>* employees;
 
     // fill binary file based on information given
 
@@ -33,7 +33,6 @@ binaryFile::binaryFile(string baseFilePath, string baseFileName, string binaryFi
 
     // sort them
     employees = this->p_sortEmployees(employees);
-
 	// write them to binary file
 	try
 	{
@@ -43,6 +42,8 @@ binaryFile::binaryFile(string baseFilePath, string baseFileName, string binaryFi
     {
         cout << e.what() << endl;
     }
+
+    delete employees;
 }
 
 binaryFile::~binaryFile(){}
@@ -55,11 +56,6 @@ bool binaryFile::findEmployee(int departmentNumber, int employeeNumber){
     {
         int searchResult = this->p_findEmployee(departmentNumber,employeeNumber);
     	return searchResult > 0 ? true : false;
-    	// if( searchResult > 0 ){
-    	// 	//cout<<"offset: "<<searchResult<<endl;
-    	// 	return true;
-    	// }
-    	return false;
     }
     catch(myException &e)
     {
@@ -114,10 +110,10 @@ string binaryFile::retrieveEmployee(int departmentNumber, int employeeNumber)
 }
 
 /****************************** PRIVATE: fillBinaryFile ******************************/
-vector<employee> binaryFile::p_loadEmployees() {
+vector<employee>* binaryFile::p_loadEmployees() {
 	char seperator = ',';
 
-	vector<employee> employees;
+	vector<employee>* employees = new vector<employee>;
     // this is not complete 
 
 	// open input file
@@ -161,7 +157,7 @@ vector<employee> binaryFile::p_loadEmployees() {
     		strcpy(currentEmployee.name, name.c_str());
 
     		// push to employees
-    		employees.push_back(currentEmployee);
+    		employees->push_back(currentEmployee);
 
     		inputFile >> inputString;
     	}
@@ -177,8 +173,8 @@ vector<employee> binaryFile::p_loadEmployees() {
 }
 
 /****************************** PRIVATE: p_sortEmployees ******************************/
-vector<employee> binaryFile::p_sortEmployees(vector<employee> employees){
-	std::sort( employees.begin(), employees.end(), p_sortHelper);
+vector<employee>* binaryFile::p_sortEmployees(vector<employee>* employees){
+	std::sort( employees->begin(), employees->end(), p_sortHelper);
 	
 	return employees;
 }
@@ -193,26 +189,25 @@ bool binaryFile::p_sortHelper(const employee &e1, const employee &e2){
 }
 
 /****************************** PRIVATE: p_writeEmployees ******************************/
-vector<employee> binaryFile::p_writeEmployees(vector<employee> employees){
+vector<employee>* binaryFile::p_writeEmployees(vector<employee>* employees){
 	// open output file
 	fstream outputFile;
 	// trunc kills the file before write
 	outputFile.open(this->binaryFilePath, ios::binary | ios::out | ios::in | ios::trunc);
 
+    this->departmentLocations.clear();
+
+
 	if(outputFile.is_open())
 	{
 		int indexLocation = 0, checkSize = 0;
 
-    	for(employee iterEmployee : employees){
+    	for(employee iterEmployee : *employees){
     		//generate the binary index based upon department
     		if( checkSize <= iterEmployee.departmentNumber ){
     			departmentLocations.push_back(outputFile.tellp());
-    			// indexLocation++;
     			checkSize++;
     		}
-    		// outputFile.write((char*)&iterEmployee.departmentNumber, sizeof(int));
-    		// outputFile.write((char*)&iterEmployee.employeeNumber, sizeof(int));
-    		// outputFile.write(iterEmployee.name, sizeof(char)*30);
 
     		outputFile.write((char*)&iterEmployee, sizeof(employee));
     	}
@@ -275,10 +270,12 @@ int binaryFile::p_findEmployee(int departmentNumber, int employeeNumber){
 // return: updated
 /****************************** PRIVATE: updateEmployeeName ******************************/
 bool binaryFile::p_updateEmployeeName(int departmentNumber, int employeeNumber, string newName){
+    // binaryFile
     fstream file;
+    // current employee
 	employee currentEmployee;
-
-    vector<employee> employees;
+    // vector to store updated information for write
+    vector<employee>* employees = new vector<employee>;
 
     file.open(this -> binaryFilePath, ios::in | ios::out | ios::binary);   // Open file
 
@@ -287,8 +284,9 @@ bool binaryFile::p_updateEmployeeName(int departmentNumber, int employeeNumber, 
     if(file.is_open())
     {
         while(!file.eof()){
-            file.seekg(sizeof(employee), ios::cur);
+            // clear name in case last string was longer
             memset(currentEmployee.name, 0, sizeof(currentEmployee.name));
+            // read
             file.read((char*)&currentEmployee, sizeof(employee));
             if(currentEmployee.departmentNumber == departmentNumber && currentEmployee.employeeNumber){
                 memset(currentEmployee.name, 0, sizeof(currentEmployee.name));
@@ -296,28 +294,31 @@ bool binaryFile::p_updateEmployeeName(int departmentNumber, int employeeNumber, 
                 strcpy(currentEmployee.name, newName.c_str());
                 found = true;
             }
-            employees.push_back(currentEmployee);
+            employees->push_back(currentEmployee);
         }
     }
     else
     {
         throw myException("File could not be opened.", ERROR);
     }
-    // if not found return
+    // close file
     file.close(); 
-    if(!found) return found;
-
-
-    file.open(this->binaryFilePath, ios::binary | ios::out | ios::in | ios::trunc);
-    if(file.is_open()){
-        for(employee iterEmployee : employees){
-            file.write((char*)&iterEmployee, sizeof(employee));
-        }
+    // return if not found
+    if(!found){
+        delete(employees);
+        return false;
     }
-    else
+    // write updated information back to file
+    try
+	{
+	    this->p_writeEmployees(employees);
+	}
+    catch(myException &e)
     {
-        throw myException("File could not be opened.", ERROR);
+        cout << e.what() << endl;
     }
+    // delete employees
+    delete(employees);
 
 	return true;
 }
